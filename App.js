@@ -12,10 +12,17 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser());
 // const admin = require("firebase-admin");
 // const serviceAccount = require("./service.json");
+// app.use(cors({
+//     origin:process.env.FRONTEND_URL,
+//     credentials:true
+// }))
+const frontendUrl = 'https://school-management-frontend-h560y7mli.vercel.app';
+
 app.use(cors({
-    origin:process.env.FRONTEND_URL,
-    credentials:true
-}))
+  origin: frontendUrl, // Only allow the specific frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 const port=process.env.port||3000
 
