@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express= require("express")
 const app= express()
 const DB= require("./db")
@@ -11,7 +13,7 @@ app.use(cookieParser());
 // const admin = require("firebase-admin");
 // const serviceAccount = require("./service.json");
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:process.env.FRONTEND_URL,
     credentials:true
 }))
 
