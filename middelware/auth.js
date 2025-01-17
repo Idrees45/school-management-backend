@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const authtoken= async(req,res,next)=>{
     try {
         const token=req.cookies?.token||req.header
@@ -8,9 +9,9 @@ const authtoken= async(req,res,next)=>{
                 error:true,
                 success:false
             })
-        }
+        }s
         // console.log("token ha ?",token)
-        jwt.verify(token,"123456",(err,decode)=>{
+        jwt.verify(token,process.env.TOKEN,(err,decode)=>{
           
             // console.log("decodetoken",decode)
             if(err){

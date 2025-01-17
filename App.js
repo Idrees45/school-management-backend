@@ -14,11 +14,10 @@ app.use(cors({
     origin:"http://localhost:5173",
     credentials:true
 }))
+
+const port=process.env.port||3000
+
 app.use("/api",router)
-
-
-
-
 
 app.listen(3000,()=>{
     console.log("app is running on port  3000")

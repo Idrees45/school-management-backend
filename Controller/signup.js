@@ -3,12 +3,16 @@ const classModel= require("../Models/classModel")
 const SubjectModel= require("../Models/SubjectModel")
 const sectionModel= require("../Models/Section")
 const AttendenceModel= require("../Models/AttendencesheetModel")
-
 const Noticeboard=require ("../Models/NoticeBoard")
 const admin = require("firebase-admin");
 const serviceAccount = require("../service.json");
 const jwt = require("jsonwebtoken")
 const bcrypt = require('bcrypt');
+require('dotenv').config();
+
+const mongoose=require("mongoose")
+const studentmodel = require("../Models/StudentModel")
+const Teachermodel = require("../Models/TeacherModel")
 const register= async(req,res)=>{
 
     try {
@@ -42,7 +46,7 @@ const register= async(req,res)=>{
 const login= async(req,res)=>{
 
     try {
-        const data= req.body
+        // const data= req.body
     const {password,email}= req.body
   
     if (!password || !email) {
@@ -57,15 +61,17 @@ const login= async(req,res)=>{
     }
 
    const compared=  await bcrypt.compare(password,userfound.password)
+   console.log(compared)
 if(!compared){
    return res.status(400).json({message:"Invalid credintials"})
 }else{
+    
 const userdetail={
     id:userfound._id,
     email:userfound.email,
     role:userfound.role
 }
-const token= jwt.sign(userdetail,"123456",{ expiresIn: '9h' })
+const token= jwt.sign(userdetail,process.env.TOKEN,{ expiresIn: '9h' })
 const tokenoption= {
     httpOnly:true,
     secure:true
@@ -81,8 +87,6 @@ const tokenoption= {
 
    
 }
-  
-
 
     } catch (error) {
         console.log("server error",error.message)
@@ -93,30 +97,91 @@ const tokenoption= {
 
 
 
-const fetchuser= async(req,res)=>{
 
-    try {
-        const id= req.user.id
-if(!id){
-        return res.status(400).json({
-            message:"Please login....",
-            error:true,
-            success:false
-        })}
+    
 
-  const found= await signupModel.findOne({ _id: id })
-  if(!found){
-return res.status(400).json({message:"user not found"})
-  }
-  return res.status(200).json({message:"user found",
-    Data:found
-  })
+
+
+
+
+
+// const fetchuser= async(req,res)=>{
+
+//     try {
+//         const id= req.user.id
+// if(!id){
+//         return res.status(400).json({
+//             message:"Please login....",
+//             error:true,
+//             success:false
+//         })}
+
+//   const found= await signupModel.findOne({ _id: id })
+//   if(!found){
+// return res.status(400).json({message:"user not found"})
+//   }
+//   return res.status(200).json({message:"user found",
+//     Data:found
+//   })
    
-} catch (error) {
-        console.log("server error",error.message)
-    }
+// } catch (error) {
+//         console.log("server error",error.message)
+//     }
 
-}
+// }
+
+
+
+
+const fetchuser = async (req, res) => {
+    try {
+      const id = req.user.id; // User ID from request
+  
+      if (!id) {
+        return res.status(400).json({ message: "Please login", error: true });
+      }
+  
+      // Fetch user from signupModel
+      const user = await signupModel.findById(id);
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+  
+      let userDetails = null;
+  
+      // Fetch details based on user role
+      if (user.role === "Admin") {
+        // userDetails =await adminDetails.findOne({ userId: id }); 
+        userDetails ="kkkkkk"; 
+      } else if (user.role === "Teacher") {  
+        userDetails = await Teachermodel.findOne({ userid: id });
+      } else if (user.role === "Student") {
+        userDetails = await studentmodel.findOne({ userid: id });
+      }
+  
+      return res.status(200).json({
+        message: "user found",
+        Data: {
+          ...user.toObject(), // Convert user document to JSON
+          details: userDetails || {}, // Attach details (empty object if not found)
+        },
+      });
+  
+    } catch (error) {
+      console.error("Server error:", error.message);
+      return res.status(500).json({ message: "Server error", error: true });
+    }
+  };
+  
+
+
+
+
+
+
+      
+  
+
 
 ///logout
 

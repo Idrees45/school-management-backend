@@ -3,13 +3,21 @@ const userModel=  require ("../Models/signupModel")
 const TeacherModel= require("../Models/TeacherModel")
 const centerModel= require("../Models/TeachercenterModel")
 const bcrypt= require("bcrypt")
+const Emailsender= require ("../utilities/email")
+const generator = require('generate-password');
 const Teacherregister= async(req,res)=>{
     try {
-        // const {email,name,password,roleno,Religion}=req.body
-        // const hashedpassword= await bcrypt.hash(password,10)
-        console.log(req.body)
+const randompassword = generator.generate({
+      length: 10,
+      numbers: true
+    });
+    
+
+        const hashedpassword= await bcrypt.hash(randompassword,10)
+    
        const saved= await   userModel.create({
         name:req.body.firstName,
+        password:hashedpassword,
         ...req.body
        })
        if(saved){
@@ -19,6 +27,7 @@ const Teacherregister= async(req,res)=>{
               ...req.body
         })
            if (Studentdetail) {
+            Emailsender(req.body.email,randompassword,)
                return res.status(200).json({
                    message: "User successfully register",
                    Data: saved

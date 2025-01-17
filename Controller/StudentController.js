@@ -8,23 +8,31 @@ const feeModel = require("../Models/feeModel");
 const classModel= require("../Models/classModel")
 const gradeModel= require("../Models/GardeModel")
 const attdenceModel= require("../Models/AttendencesheetModel")
-
+const generator = require('generate-password');
+const Emailsender= require ("../utilities/email")
 require('dotenv').config();
 
 const mongoose = require('mongoose');
 const Register = async (req, res) => {
   try {
+    const randompassword = generator.generate({
+      length: 10,
+      numbers: true
+    });
+   const hashpassword=  await bcrypt.hash(randompassword,10)
       const { email, firstName, ...rest } = req.body;
 
       // Create User
-      const savedUser = await userModel.create([{ email, name: firstName }]);
+      console.log(hashpassword)
+      const savedUser = await userModel.create({ email, name: firstName ,password:hashpassword});
       if (!savedUser) {
           return res.status(500).json({ message: 'Failed to save user.' });
       }
 
       // Create Student Details
       const studentDetails = await studentModel.create([{
-          userid: savedUser[0]._id,
+          // userid: savedUser[0]._id,
+          userid: savedUser._id, 
           imgpath: req.file.path, // Cloudinary URL
           parentInfo: { ...rest },
           ...rest,
@@ -46,6 +54,7 @@ const Register = async (req, res) => {
           return res.status(500).json({ message: 'Failed to save fee data.' });
       }
 
+          Emailsender(email,randompassword)
       return res.status(200).json({
           message: 'User successfully registered.',
           data: savedUser[0],
@@ -56,6 +65,11 @@ const Register = async (req, res) => {
       });
   }
 };
+
+
+
+
+
 
 const fetchstudents = async (req, res) => {
     try {
