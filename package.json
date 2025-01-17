@@ -19,4 +19,8 @@
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7"
   }
+    "scripts": {
+    "start": "node App.js",
+    "dev": "nodemon App.js"
+  }
 }
